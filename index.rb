@@ -49,23 +49,57 @@ def get_message(birth_path_num)
     end
 end
  
+def valid_birthdate(input)
+  	if input.length == 8 && input.match(/^[0-9]+[0-9]$/)
+    	return true
+  	end
+end
  
 # 1. ask the user for their birthdate & assign response to variable
-puts "What is your birthdate? Please write it like this: MMDDYYYY"
-birthdate = gets
+#puts "What is your birthdate? Please write it like this: MMDDYYYY"
+#birthdate = gets
  
 # 3. get birth path number using the method & assign to variable
-birth_path_num = get_birth_path_num(birthdate)
+#birth_path_num = get_birth_path_num(birthdate)
  
 # 5. get the correct message using the method & assign to variable
-message = get_message(birth_path_num)
+#message = get_message(birth_path_num)
  
 # 6. display the number and message to the user
-puts message
+#puts message
+
+
+get '/message/:birth_path_num' do
+  birth_path_num = params[:birth_path_num].to_i
+  @message = get_message(birth_path_num)
+  erb :index
+end
+
+get '/newpage' do
+  "This is my new page without leaving my page"
+  erb :newpage
+end
+
+get '/' do
+  erb :form
+end
 
 get '/:birthdate' do
-  birthdate = params[:birthdate]
-  birth_path_num = get_birth_path_num(birthdate)
-  message = get_message(birth_path_num)
-  "#{message}"
+	birthdate = params[:birthdate]
+	birth_path_num = get_birth_path_num(birthdate)
+	@message = get_message(birth_path_num)
+  erb :index
 end
+
+post '/' do
+  birthdate = params[:birthdate].gsub("-","")
+  if valid_birthdate(birthdate)
+    birth_path_num = get_birth_path_num(birthdate)
+    redirect "/message/#{birth_path_num}"
+  else
+    @error = "Sorry, your input wasn't valid.  Try again in form MMDDYYYY!"
+    erb :form
+  end
+end
+
+
